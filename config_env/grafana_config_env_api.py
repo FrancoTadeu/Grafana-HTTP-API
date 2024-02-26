@@ -1,3 +1,4 @@
+#!/usr/bin/python
 import requests
 import json
 import socket # Obter endereço IP da máquina que executa o script (Deve ser executado do Host do Grafana OSS)
