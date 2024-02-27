@@ -4,6 +4,8 @@ import json
 import socket # Obter endereço IP da máquina que executa o script (Deve ser executado do Host do Grafana OSS)
 import platform # Determina a plataforma (Se é Unix ou Windows)
 import sys
+import secrets #
+import string  # Libraries utilizadas para a função que gera um senha aleatória para os usuários padrão
 
 """FALTA
 - Adicionar o usuário telictec também de visualização
@@ -28,7 +30,15 @@ else:
 url = f"{grafana_url}/api/admin/users"
 url_team = f"{grafana_url}/api/teams"
 
+# Função para gerar senhas fortes e aleatórias para os users criados
+def generate_random_password(length):
+    alphabet = string.ascii_letters + string.digits + string.punctuation
+    password = ''.join(secrets.choice(alphabet) for _ in range(length))
+    return password
 
+# Duas senhas aleatórias geradas para os users 
+pass_default = generate_random_password(secrets.choice(range(10, 21)))
+pass_empresa = generate_random_password(secrets.choice(range(10, 21)))
 # #
 # Criação do usuário Telic telictec
 # #
@@ -36,7 +46,7 @@ payload_user_telictec = json.dumps({
   "name": f"telictec Viewer",
   "email": f"telictec@telic.com.br",
   "login": f"telictec",
-  "password": "Sp!derm4n",
+  "password": f"{pass_default}",
   "orgId": 1,
   "isDisabled": False
 })
@@ -52,6 +62,7 @@ try:
     user_telictec_id = response_user_id_telictec.get('id') # Para user se utiliza id
     if user_telictec_id is not None:
         print(f"Id for user 'telictec' is {user_telictec_id}")
+        print(f"Random generated passoword:  {pass_default}")
     else:
         print("Error extracting user ID from response.")
 except json.JSONDecodeError:
@@ -65,7 +76,7 @@ payload_user = json.dumps({
   "name": f"{empresa}",
   "email": f"{empresa}@example.com",
   "login": f"{empresa}",
-  "password": "empresa_tec2",
+  "password": f"{pass_empresa}",
   "orgId": 1,
   "isDisabled": False
 })
@@ -81,6 +92,7 @@ try:
     user_empresa_id = response_user_id.get('id') # Para user se utiliza id
     if user_empresa_id is not None:
         print(f"Id for user '{empresa}' is {user_empresa_id}")
+        print(f"Random generated passoword:  {pass_empresa}")
     else:
         print("Error extracting user ID from response.")
 except json.JSONDecodeError:
@@ -117,7 +129,7 @@ except json.JSONDecodeError:
 # 
 # Adicionar os usuários criados ao time 
 #
-all_user_id = [user_telictec_id, user_empresa_id]
+all_user_id = [user_telictec_id, user_empresa_id] # Lista simples com os dois IDs de users obtidos em suas criações
 #print(all_user_id)
 
 for uid in all_user_id:
